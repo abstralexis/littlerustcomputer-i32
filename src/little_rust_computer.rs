@@ -3,21 +3,71 @@
 /// is thorough and verbose. I like typing.
 
 pub struct ControlUnit { 
-
+    pub alu: ArithmeticLogicUnit,
+    pub mem: MemoryUnit,
+    pub mar: MemoryAddressRegister,
+    pub mdr: MemoryDataRegister,
 }
 impl ControlUnit {
+    pub fn new() -> Self {
+        ControlUnit { 
+            alu: ArithmeticLogicUnit::new(),
+            mem: MemoryUnit::new(),
+            mar: MemoryAddressRegister::new(),
+            mdr: MemoryDataRegister::new(),
+        }
+    }
 
+    pub fn set(&mut self, val: i32, address: u32) {
+        self.mdr.val = val;
+        self.mar.val = address;
+        self.mem.register[self.mar.val as usize] = self.mdr.val;
+    }
+
+    pub fn get_acc(&mut self, target_addr: u32) {
+        self.mar.val = target_addr;
+        self.mdr.val = self.alu.ac.val;
+        self.mem.register[target_addr as usize] = self.mdr.val;
+    }
+
+    pub fn output(&mut self, address: u32) {
+        self.mar.val = address;
+        self.mdr.val = self.mem.register[self.mar.val as usize];
+        println!("{:?}", self.mdr.val);
+    }
 }
 
 pub struct ArithmeticLogicUnit {
+    pub val1: i32,
+    pub val2: i32,
+    pub ac: Accumulator,
 }
 impl ArithmeticLogicUnit {
+    pub fn new() -> Self { ArithmeticLogicUnit { val1: 0, val2: 0, ac: Accumulator::new() } }
+
+    pub fn add(&mut self) {
+        self.ac.val = self.val1 + self.val2;
+    }
+
+    pub fn sub(&mut self) {
+        self.ac.val = self.val1 - self.val2;
+    }
+
+    pub fn mul(&mut self) {
+        self.ac.val = self.val1 * self.val2;
+    }
+
+    pub fn div(&mut self) {
+        self.ac.val = self.val1 / self.val2
+    }
 }
 
+// TODO PC
 pub struct ProgramCounter {
 
 }
 
+// TODO CIR
 pub struct CurrentInstructionRegister {
 
 }
@@ -45,7 +95,7 @@ impl MemoryDataRegister {
 
 #[derive(Debug)]
 pub struct MemoryUnit {
-    register: Vec<i32>,
+    pub register: Vec<i32>,
 }
 impl MemoryUnit {
     // Construct new memory unit with default size 100
@@ -53,15 +103,4 @@ impl MemoryUnit {
 
     // Construct new memory unit from a usize
     pub fn from_length(l: usize) -> Self { MemoryUnit { register: vec!{0; l} } }
-}
-
-pub struct CPU {
-    cu: ControlUnit,
-    alu: ArithmeticLogicUnit,
-    pc: ProgramCounter,
-    cir: CurrentInstructionRegister,
-    ac: Accumulator,
-    mar: MemoryAddressRegister,
-    mdr: MemoryDataRegister,
-    mem: MemoryUnit,
 }
