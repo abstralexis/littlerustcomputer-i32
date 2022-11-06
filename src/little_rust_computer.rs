@@ -2,14 +2,14 @@
 /// I decided to abstract it to hell and back so the terminology
 /// is thorough and verbose. I like typing.
 
-pub struct ControlUnit { 
+pub struct ControlUnit {                // This is the main CU struct used to interface with cpu parts
     pub alu: ArithmeticLogicUnit,
     pub mem: MemoryUnit,
     pub mar: MemoryAddressRegister,
     pub mdr: MemoryDataRegister,
 }
 impl ControlUnit {
-    pub fn new() -> Self {
+    pub fn new() -> Self {              // Creates new instance using default values
         ControlUnit { 
             alu: ArithmeticLogicUnit::new(),
             mem: MemoryUnit::new(),
@@ -18,33 +18,34 @@ impl ControlUnit {
         }
     }
 
-    pub fn set(&mut self, val: i32, address: u32) {
-        self.mdr.val = val;
-        self.mar.val = address;
-        self.mem.register[self.mar.val as usize] = self.mdr.val;
+    pub fn set(&mut self, val: i32, address: u32) {                 // Sets a value to an address in memory
+        self.mdr.val = val;                                         // Send the value to mdr
+        self.mar.val = address;                                     // Send address to mar
+        self.mem.register[self.mar.val as usize] = self.mdr.val;    // Use mdr and mar to set val in mem
+    }   
+
+    pub fn get_acc(&mut self, target_addr: u32) {                   // Gets val from accum. to a target addr
+        self.mar.val = target_addr;                                 // Send addr to mar
+        self.mdr.val = self.alu.ac.val;                             // Set mdr to accum. val
+        self.mem.register[target_addr as usize] = self.mdr.val;     // Set val in mem
     }
 
-    pub fn get_acc(&mut self, target_addr: u32) {
-        self.mar.val = target_addr;
-        self.mdr.val = self.alu.ac.val;
-        self.mem.register[target_addr as usize] = self.mdr.val;
-    }
-
-    pub fn output(&mut self, address: u32) {
+    pub fn output(&mut self, address: u32) {                        // Prints value from mem to terminal
         self.mar.val = address;
         self.mdr.val = self.mem.register[self.mar.val as usize];
         println!("{:?}", self.mdr.val);
     }
 }
 
-pub struct ArithmeticLogicUnit {
-    pub val1: i32,
+pub struct ArithmeticLogicUnit {    // The ALU holds 3 values in its register
+    pub val1: i32,                  // 2 input values
     pub val2: i32,
-    pub ac: Accumulator,
+    pub ac: Accumulator,            // And the accumulator where the output is temporarily stored
 }
 impl ArithmeticLogicUnit {
     pub fn new() -> Self { ArithmeticLogicUnit { val1: 0, val2: 0, ac: Accumulator::new() } }
 
+    // Basic integer arithmetic
     pub fn add(&mut self) {
         self.ac.val = self.val1 + self.val2;
     }
@@ -79,6 +80,8 @@ impl Accumulator {
     fn new() -> Self { Accumulator { val: 0 } }
 }
 
+// MAR and MDR did not *have* to be seperate registers but I think it
+// is most accurate to what it actually represents.
 pub struct MemoryAddressRegister {
     pub val: u32,                                   // Register value
 }
@@ -93,6 +96,8 @@ impl MemoryDataRegister {
     pub fn new() -> Self { MemoryDataRegister { val: 0 } }
 }
 
+// The memory unit is like a vector register of values that can be indexed.
+// Derives debug for debugging purposes such as dumping the memory contents to screen.
 #[derive(Debug)]
 pub struct MemoryUnit {
     pub register: Vec<i32>,
