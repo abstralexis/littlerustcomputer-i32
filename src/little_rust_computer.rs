@@ -27,19 +27,11 @@ pub struct Accumulator {
 }
 
 pub struct MemoryAddressRegister {
-    val: u32,                                   // Register value
+    pub val: u32,                                   // Register value
 }
 impl MemoryAddressRegister {
     pub fn new() -> Self {                      // Construct new MAR
         MemoryAddressRegister { val: 0 }   
-    }
-
-    pub fn set(&mut self, arg: u32) {           // Set the register to a value
-        self.val = arg;
-    }
-
-    pub fn get(&self) -> u32 {                  // Get the register value
-        return self.val;
     }
 }
 
@@ -49,14 +41,6 @@ pub struct MemoryDataRegister {
 impl MemoryDataRegister {
     pub fn new() -> Self {
         MemoryDataRegister { val: 0 }
-    }
-
-    pub fn set(&mut self, arg: i32) {
-        self.val = arg;
-    }
-
-    pub fn get(&self) -> i32 {
-        return self.val;
     }
 }
 
