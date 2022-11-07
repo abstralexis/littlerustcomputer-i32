@@ -18,6 +18,15 @@ impl ControlUnit {
         }
     }
 
+    pub fn from_memory_length(mem_size: usize) -> Self {
+        ControlUnit {
+            alu: ArithmeticLogicUnit::new(),
+            mem: MemoryUnit::from_length(mem_size),
+            mar: MemoryAddressRegister::new(),
+            mdr: MemoryDataRegister::new(),
+        }
+    }
+
     pub fn set(&mut self, val: i32, address: u32) {                 // Sets a value to an address in memory
         self.mdr.val = val;                                         // Send the value to mdr
         self.mar.val = address;                                     // Send address to mar
